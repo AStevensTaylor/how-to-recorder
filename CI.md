@@ -19,12 +19,15 @@ Runs automatically when PRs are merged to `main`:
 
 - Runs all checks (lint, test, build)
 - Generates changelog from commit messages since last tag
-- Creates `.crx` package for Chrome extension
+- Creates signed `.crx` package for Chrome extension (using `CRX_PRIVATE_KEY`)
 - Creates GitHub release with:
   - Auto-generated changelog
-  - `.crx` file for manual installation
-  - `.zip` file for Chrome Web Store
+  - Signed `.crx` file for manual installation
+  - `.zip` file for archival
+- Uploads signed `.crx` to Chrome Web Store API
 - Publishes to Chrome Web Store automatically
+
+**Security**: The workflow uses signed CRX files with verified uploads, protecting against unauthorized package updates even if credentials are compromised.
 
 ## Required GitHub Secrets
 
@@ -101,6 +104,23 @@ To enable the full CI/CD pipeline, you need to configure the following secrets i
    - Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
    - Find your extension
    - The ID is in the URL or extension details
+
+6. **Enable Verified CRX Uploads (Recommended)**
+   
+   This adds an extra layer of security by requiring all package updates to be signed with your private key, preventing unauthorized updates even if your developer account is compromised.
+   
+   - Extract your public key:
+     ```bash
+     ./scripts/extract-public-key.sh
+     ```
+   - Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)
+   - Select your extension
+   - Navigate to the **Package** tab
+   - Find the **Verified CRX Uploads** section
+   - Click **Opt In**
+   - Paste your public key (including BEGIN/END lines)
+   
+   **Important**: After opting in, all future uploads MUST be signed CRX files. The CI/CD pipeline handles this automatically using the `CRX_PRIVATE_KEY` secret.
 
 ## Versioning
 

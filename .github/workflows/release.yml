@@ -130,16 +130,38 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload to Chrome Web Store
+      - name: Get OAuth2 access token
         if: steps.check_tag.outputs.exists == 'false'
-        uses: mnao305/chrome-extension-upload@v5.0.0
-        with:
-          file-path: how-to-recorder.zip
-          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
-          client-id: ${{ secrets.CHROME_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          publish: true
+        id: oauth_token
+        run: |
+          ACCESS_TOKEN=$(curl -s -X POST \
+            -d "client_id=${{ secrets.CHROME_CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.CHROME_CLIENT_SECRET }}" \
+            -d "refresh_token=${{ secrets.CHROME_REFRESH_TOKEN }}" \
+            -d "grant_type=refresh_token" \
+            https://oauth2.googleapis.com/token | jq -r '.access_token')
+          echo "token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Upload CRX to Chrome Web Store
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          curl -X PUT \
+            -H "Authorization: Bearer ${{ steps.oauth_token.outputs.token }}" \
+            -H "x-goog-api-version: 2" \
+            -H "Content-Length: $(stat -c%s how-to-recorder-v${{ steps.package_version.outputs.version }}.crx)" \
+            -H "X-Goog-Upload-Protocol: raw" \
+            -H "X-Goog-Upload-File-Name: how-to-recorder-v${{ steps.package_version.outputs.version }}.crx" \
+            -T how-to-recorder-v${{ steps.package_version.outputs.version }}.crx \
+            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/${{ secrets.CHROME_EXTENSION_ID }}"
+
+      - name: Publish to Chrome Web Store
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ steps.oauth_token.outputs.token }}" \
+            -H "x-goog-api-version: 2" \
+            -H "Content-Length: 0" \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/${{ secrets.CHROME_EXTENSION_ID }}/publish"
 
       - name: Skip release (version already exists)
         if: steps.check_tag.outputs.exists == 'true'
