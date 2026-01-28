@@ -168,6 +168,39 @@ For privacy concerns or questions, contact: github+how-to-recorder@stevenstaylor
 
 ---
 
+### sidePanel Permission
+
+**Justification**: Required to display the extension's main user interface as a side panel in Chrome. The side panel provides a non-intrusive way for users to control recordings and view their timeline without covering the page content they're documenting.
+
+**Usage**:
+- Displays the recording control interface (Start/Stop buttons)
+- Shows a visual timeline of recorded steps with thumbnails
+- Provides export options (JSON, Markdown, ZIP)
+- Only visible when user opens the side panel
+- Does not automatically open or interfere with browsing
+
+---
+
+### Host Permission (<all_urls>)
+
+**Justification**: Required to inject content scripts into any website the user visits during a recording session. Users need to be able to create documentation for any web application or website, so the extension must be able to track interactions across all domains.
+
+**Usage**:
+- Content scripts are specified in the manifest with `matches: ['http://*/*', 'https://*/*']`
+- Allows the extension to detect clicks, inputs, and interactions on any page
+- Scripts only activate when user starts a recording
+- Does not access or modify pages when recording is inactive
+- Essential for the core purpose: users cannot document workflows if the extension only works on specific sites
+- No data is transmitted to external servers - all processing is local
+
+**Security Notes**:
+- Content scripts only listen for user interactions during active recordings
+- Sensitive form fields (passwords, credit cards) are automatically masked
+- No persistent access to page content - scripts are contextual to recording sessions
+- Users have complete control via start/stop recording
+
+---
+
 ## Summary for Chrome Web Store Review Team
 
 **Extension Purpose**: Create step-by-step documentation by recording browser interactions with screenshots.
@@ -182,6 +215,8 @@ For privacy concerns or questions, contact: github+how-to-recorder@stevenstaylor
 - Screenshots (activeTab) and navigation tracking (tabs) for documentation
 - Local storage (storage) for saving sessions on device
 - Content script injection (scripting) for detecting interactions
+- Host permissions (<all_urls>) to work on any website user wants to document
+- Side panel UI (sidePanel) for non-intrusive control interface
 - File export (downloads) for sharing documentation
 - User convenience features (contextMenus)
 
