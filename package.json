@@ -3,7 +3,7 @@
 	"displayName": "how-to-recorder",
 	"version": "0.1.0",
 	"author": "Ahren Stevens-Taylor <github+how-to-recorder@stevenstaylor.dev>",
-	"description": "",
+	"description": "Create step-by-step documentation by recording browser interactions with screenshots",
 	"type": "module",
 	"license": "MIT",
 	"keywords": [
