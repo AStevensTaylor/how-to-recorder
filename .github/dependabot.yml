@@ -5,15 +5,15 @@
 
 version: 2
 updates:
-  # Enable version updates for npm dependencies
+  # Enable version updates for bun dependencies
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
-      - "npm"
+      - "bun"
     reviewers:
       - "AStevensTaylor"
 
@@ -21,7 +21,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
